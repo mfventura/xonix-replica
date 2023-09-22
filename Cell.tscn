@@ -1,0 +1,46 @@
+[gd_scene load_steps=3 format=3 uid="uid://cl1svdr8eqk8f"]
+
+[sub_resource type="GDScript" id="GDScript_pervj"]
+script/source = "extends Area2D
+
+var size = 20
+var current_value = 0
+var x
+var y
+
+# Called when the node enters the scene tree for the first time.
+func _ready():
+	pass # Replace with function body.
+
+
+# Called every frame. 'delta' is the elapsed time since the previous frame.
+func _process(delta):
+	pass
+
+func set_size(new_size):
+	size = new_size
+
+func set_current_value(new_value : int):
+	current_value = new_value
+
+func set_x_y(new_x, new_y):
+	x = new_x
+	y = new_y
+
+func _draw():
+	var color = Color.WHITE
+	if(current_value == -1):
+		color = Color.GRAY
+	elif (current_value == 1):
+		color = Color.BLACK
+	var rect = Rect2(-size/2, -size/2, size, size)
+	draw_rect(rect, color, true)
+"
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fsug5"]
+
+[node name="Cell" type="Area2D"]
+script = SubResource("GDScript_pervj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_fsug5")
