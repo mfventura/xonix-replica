@@ -2,21 +2,19 @@ extends Node2D
 
 
 var size : float = 10
-var width: float = 200
-var height: float = 200
+var width: float = 100
+var height: float = 100
 var offset = 0
 
 @export var char : CharacterBody2D
 
-var boardData = []
-var floodFill = []
 var fillCells = []
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	print("Ready")
 	_buildBoard()
 	char.set_size(size)
+
 func restart():
 	char.stop_movement()
 	char.position = Vector2.ZERO
@@ -25,18 +23,17 @@ func restart():
 
 
 func _buildBoard():
-	boardData = []
-	floodFill = []
+	Globals.boardData = []
 	fillCells = []
 	for x in width:
 		var row = []
 		for y in height:
 			row.append({
 				"val": 1 if (x == 0 || x== width-1 || y == 0 || y == height-1) else 0,
-				"x" : x*size+offset,
-				"y" : y*size+offset
+				"x" : x,
+				"y" : y
 			})
-		boardData.append(row)
+		Globals.boardData.append(row)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -47,12 +44,12 @@ func _physics_process(delta):
 	var x = int(char.position.x - offset)/size;
 	var y = int(char.position.y - offset)/size;
 	if(x >= 0 && x < width && y >= 0 && y < height):
-		var cell = boardData[x][y]
+		var cell = Globals.boardData[x][y]
 		if(cell.val == 0):
-			var row = boardData[x]
+			var row = Globals.boardData[x]
 			cell.val = -1
 			row[y] = cell
-			boardData[x] = row
+			Globals.boardData[x] = row
 			fillCells.append(cell)
 			queue_redraw()
 		elif(cell.val == 1):
@@ -68,9 +65,7 @@ func floodfill():
 	if(fillCells.size() > 0):
 		char.stop_movement()
 		for cell in fillCells:
-			var x = int(cell.x - offset)/size
-			var y = int(cell.y - offset)/size
-			boardData[x][y].val = 1
+			Globals.boardData[cell.x][cell.y].val = 1
 		var lastCell = fillCells[fillCells.size()-1]
 		fillCells.clear()
 		queue_redraw()
@@ -78,53 +73,36 @@ func floodfill():
 		flood_fill(lastCell)
 
 func flood_fill(lastCell):
-	var x = int(lastCell.x - offset)/size
-	var y = int(lastCell.y - offset)/size
 	var sides = []
-	if((y+1 > 0 && y+1 < height) && boardData[x][y+1].val == 0):
-		print("Abajo")
-		sides.append(boardData[x][y+1])
-	if((y-1 > 0 && y-1 < height) && boardData[x][y-1].val == 0):
-		print("Arriba")
-		sides.append(boardData[x][y-1])
-	if((x-1 > 0 && x-1 < width) && boardData[x-1][y].val == 0):
-		print("Izquierda")
-		sides.append(boardData[x-1][y])
-	if((x+1 > 0 && x+1 < width) && boardData[x+1][y].val == 0):
-		print("Derecha")
-		sides.append(boardData[x+1][y])
+	if((lastCell.y+1 > 0 && lastCell.y+1 < height) && Globals.boardData[lastCell.x][lastCell.y+1].val == 0):
+		sides.append(Globals.boardData[lastCell.x][lastCell.y+1])
+	if((lastCell.y-1 > 0 && lastCell.y-1 < height) && Globals.boardData[lastCell.x][lastCell.y-1].val == 0):
+		sides.append(Globals.boardData[lastCell.x][lastCell.y-1])
+	if((lastCell.x-1 > 0 && lastCell.x-1 < width) && Globals.boardData[lastCell.x-1][lastCell.y].val == 0):
+		sides.append(Globals.boardData[lastCell.x-1][lastCell.y])
+	if((lastCell.x+1 > 0 && lastCell.x+1 < width) && Globals.boardData[lastCell.x+1][lastCell.y].val == 0):
+		sides.append(Globals.boardData[lastCell.x+1][lastCell.y])
 	if(sides.size() == 2):
-		print(sides[0])
-		print(sides[1])
 		var side1 = []
 		var side2 = []
 		#Aplicar flood_fill a los dos lados
+		print("Area 1")
 		calculate_area_flood_fill(sides[0], side1)
+		print("Area 2")
 		calculate_area_flood_fill(sides[1], side2)
-		print("------------------------------------------------------")
-		print(side1.size())
-		print(side2.size())
-		print("------------------------------------------------------")
+		print("Fill")
 		if(side1.size() <= side2.size()):
 			for cell in side1:
-				x = int((cell.x - offset)/size)
-				y = int((cell.y - offset)/size)
-				boardData[x][y].val = 1
+				Globals.boardData[cell.x][cell.y].val = 1
 			for cell in side2:
-				x = int((cell.x - offset)/size)
-				y = int((cell.y - offset)/size)
-				boardData[x][y].val = 0
+				Globals.boardData[cell.x][cell.y].val = 0
 		else:
 			for cell in side2:
-				x = int((cell.x - offset)/size)
-				y = int((cell.y - offset)/size)
-				boardData[x][y].val = 1
+				Globals.boardData[cell.x][cell.y].val = 1
 			for cell in side1:
-				x = int((cell.x - offset)/size)
-				y = int((cell.y - offset)/size)
-				boardData[x][y].val = 0
+				Globals.boardData[cell.x][cell.y].val = 0
 		queue_redraw()
-	
+
 func calculate_area_flood_fill(node, arr):
 	var floodQ = []
 	floodQ.append(node)
@@ -133,51 +111,35 @@ func calculate_area_flood_fill(node, arr):
 	for floodCell in floodQ:
 		var w = floodCell
 		var e = floodCell
-		var x = int((floodCell.x-offset)/size)
-		var y = int((floodCell.y-offset)/size)
 		if(floodCell.val == 0):
 			arr.append(floodCell)
-			boardData[x][y].val = 2
-		var wStop = false
-		var eStop = false
-		while !wStop:
-			x = int((w.x-offset)/size)-1
-			y = int((w.y-offset)/size)
-			if(x <= 0):
-				wStop = true
-			else:
-				var leftCell = boardData[x][y]
-				if(leftCell.val == 0):
-					arr.append(leftCell)
-					boardData[x][y].val = 2
-					if(y-1 >= 0):
-						floodQ.append(boardData[x][y-1])
-					if(y+1 < height):
-						floodQ.append(boardData[x][y+1])
-					w = leftCell
-				else:
-					wStop = true
+			Globals.boardData[floodCell.x][floodCell.y].val = 2
 		
-		while !eStop:
-			x = int((e.x-offset)/size)+1
-			y = int((e.y-offset)/size)
-			if(x >= width):
-				eStop = true
+		fillDirection(-1, Vector2(floodCell.x, floodCell.y), floodQ, arr)
+		fillDirection(1, Vector2(floodCell.x, floodCell.y), floodQ, arr)
+		
+func fillDirection(direction, currentPosition, floodQ, arr):
+	var directionStop : bool = false
+	while !directionStop:
+		var x = currentPosition.x+direction
+		var y = currentPosition.y
+		if(x <= 0):
+			directionStop = true
+		else:
+			var directionCell = Globals.boardData[x][y]
+			if(directionCell.val == 0):
+				arr.append(directionCell)
+				Globals.boardData[x][y].val = 2
+				if(y-1 >= 0):
+					floodQ.append(Globals.boardData[x][y-1])
+				if(y+1 < height):
+					floodQ.append(Globals.boardData[x][y+1])
+				currentPosition = Vector2(x, y)
 			else:
-				var rightCell = boardData[x][y]
-				if(rightCell.val == 0):
-					arr.append(rightCell)
-					boardData[x][y].val = 2
-					if(y-1 >= 0):
-						floodQ.append(boardData[x][y-1])
-					if(y+1 < height):
-						floodQ.append(boardData[x][y+1])
-					e = rightCell
-				else:
-					eStop = true
+				directionStop = true
 
 func _draw():
-	for row in boardData:
+	for row in Globals.boardData:
 		for cell in row:
 			var color = Color.WHITE
 			if(cell.val == -1):
@@ -186,5 +148,5 @@ func _draw():
 				color = Color.BLACK
 			elif(cell.val == 2):
 				color = Color.AQUA
-			var rect = Rect2(cell.x, cell.y , size, size)
+			var rect = Rect2(cell.x*size+offset, cell.y*size+offset, size, size)
 			draw_rect(rect, color, true)
