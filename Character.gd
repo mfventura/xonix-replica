@@ -1,17 +1,21 @@
 extends CharacterBody2D
 
 
-@export var speed = 60
-var size  : int = 2
+@export var speedFactor = 20
+@export var speed = 200
 var player : int = 1
+var currentPositionInBoard = Vector2.ZERO
 
-# Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	speed = Globals.size * speedFactor
+	get_tree().get_root().connect("size_changed", resize)
+
+func resize():
+	position = currentPositionInBoard * Globals.size
 
 func get_input():
-	var remX =  int(position.x) % size
-	var remY =  int(position.y) % size
+	var remX =  int(position.x) % Globals.size
+	var remY =  int(position.y) % Globals.size
 	if Input.is_action_pressed('right_p'+str(player)):
 		velocity.x = 1
 		velocity.y = 0
@@ -33,12 +37,27 @@ func get_input():
 func _physics_process(delta):
 	get_input()
 	move_and_slide()
+	var x = int(position.x / Globals.size)
+	var y = int(position.y / Globals.size)
+	if (x<0) :
+		position.x = 0
+		stop_movement()
+	if (y<0) :
+		position.y = 0
+		stop_movement()
+	if(x>Globals.width):
+		position.x = (Globals.width*Globals.size)-(Globals.size)
+		stop_movement()
+	if(y>Globals.height):
+		position.y = (Globals.height*Globals.size)-Globals.size
+		stop_movement()
+		
+	x = int(position.x / Globals.size)
+	y = int(position.y / Globals.size)
+	currentPositionInBoard = Vector2(x,y)
 
-func set_size(new_size):
-	size = new_size
-
-func _draw():
-	draw_rect(Rect2(position, Vector2(size,size)), Color.AQUA)
-	
 func stop_movement():
 	velocity = Vector2.ZERO
+	position.y -= int(position.y) % Globals.size
+	position.x -= int(position.x) % Globals.size
+	
