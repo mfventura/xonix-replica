@@ -1,10 +1,10 @@
 extends Node2D
 
 
-var size : float = 20
-var width: float = 20
-var height: float = 20
-var offset = 50
+var size : float = 10
+var width: float = 200
+var height: float = 200
+var offset = 0
 
 @export var char : CharacterBody2D
 
@@ -17,8 +17,9 @@ func _ready():
 	print("Ready")
 	_buildBoard()
 	char.set_size(size)
-	
 func restart():
+	char.stop_movement()
+	char.position = Vector2.ZERO
 	_buildBoard()
 	queue_redraw()
 
@@ -65,6 +66,7 @@ func _physics_process(delta):
 
 func floodfill():
 	if(fillCells.size() > 0):
+		char.stop_movement()
 		for cell in fillCells:
 			var x = int(cell.x - offset)/size
 			var y = int(cell.y - offset)/size
