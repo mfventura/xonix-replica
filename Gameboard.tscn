@@ -5,8 +5,15 @@
 
 [node name="GameController" type="Node2D"]
 
-[node name="Gameboard" type="Node2D" parent="." node_paths=PackedStringArray("char")]
+[node name="Gameboard" type="Node2D" parent="." node_paths=PackedStringArray("char", "ui")]
 script = ExtResource("1_m7kmm")
 char = NodePath("../CharacterBody2D")
+ui = NodePath("../CanvasLayer")
 
 [node name="CharacterBody2D" parent="." instance=ExtResource("1_3uvgf")]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Label" type="Label" parent="CanvasLayer"]
+offset_right = 40.0
+offset_bottom = 23.0

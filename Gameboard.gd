@@ -4,6 +4,7 @@ extends Node2D
 var offset = 0
 
 @export var char : CharacterBody2D
+@export var ui : CanvasLayer
 
 var fillCells = []
 var emptyCells : int = 0
@@ -31,6 +32,11 @@ func restart():
 func _process(delta):
 	queue_redraw()
 	check_score()
+	draw_UI()
+
+func draw_UI():
+	var percentage : Label = ui.get_child(0)
+	percentage.text = str(100 * filledCels / emptyCells)
 
 func check_score():
 	if(emptyCells != 0 && filledCels >= 0.7 * emptyCells):
@@ -51,6 +57,7 @@ func _buildBoard():
 	var emptyRows = Globals.boardData.size() - 2
 	var emptyColumns = Globals.boardData[0].size()-2
 	emptyCells = (emptyRows*emptyColumns)
+	filledCels = 0
 	
 
 func _physics_process(delta):
@@ -125,7 +132,7 @@ func calculate_area_flood_fill(node, arr):
 		
 		fillDirection(-1, Vector2(floodCell.x, floodCell.y), floodQ, arr)
 		fillDirection(1, Vector2(floodCell.x, floodCell.y), floodQ, arr)
-		
+
 func fillDirection(direction, currentPosition, floodQ, arr):
 	var directionStop : bool = false
 	while !directionStop:
