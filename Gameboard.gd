@@ -24,9 +24,10 @@ func _ready():
 	_buildBoard()
 
 func restart():
-	char.stop_movement()
-	char.position = Vector2.ZERO
-	_buildBoard()
+	#char.stop_movement()
+	#char.position = Vector2.ZERO
+	#_buildBoard()
+	pass
 	
 func _process(delta):
 	queue_redraw()
@@ -93,6 +94,9 @@ func flood_fill(lastCell):
 		sides.append(Globals.boardData[lastCell.x-1][lastCell.y])
 	if((lastCell.x+1 > 0 && lastCell.x+1 < Globals.width) && Globals.boardData[lastCell.x+1][lastCell.y].val == 0):
 		sides.append(Globals.boardData[lastCell.x+1][lastCell.y])
+	
+	
+	
 	if(sides.size() == 2):
 		var side1 = []
 		var side2 = []
@@ -116,21 +120,17 @@ func calculate_area_flood_fill(node, arr):
 	floodQ.append(node)
 	arr.append(node)
 	
-	for floodCell in floodQ:
-		var w = floodCell
-		var e = floodCell
-		if(floodCell.val == 0):
-			arr.append(floodCell)
-			Globals.boardData[floodCell.x][floodCell.y].val = 2
-		
-		fillDirection(-1, Vector2(floodCell.x, floodCell.y), floodQ, arr)
+	while floodQ:
+		#for floodCell in floodQ:
+		var floodCell = floodQ.pop_front()
+		fillDirection(-1, Vector2(floodCell.x - 1, floodCell.y), floodQ, arr)
 		fillDirection(1, Vector2(floodCell.x, floodCell.y), floodQ, arr)
 		
 func fillDirection(direction, currentPosition, floodQ, arr):
 	var directionStop : bool = false
+	var x = currentPosition.x
+	var y = currentPosition.y
 	while !directionStop:
-		var x = currentPosition.x+direction
-		var y = currentPosition.y
 		if(x <= 0):
 			directionStop = true
 		else:
@@ -142,9 +142,9 @@ func fillDirection(direction, currentPosition, floodQ, arr):
 					floodQ.append(Globals.boardData[x][y-1])
 				if(y+1 < Globals.height):
 					floodQ.append(Globals.boardData[x][y+1])
-				currentPosition = Vector2(x, y)
 			else:
 				directionStop = true
+		x += direction
 
 func _draw():
 	for row in Globals.boardData:
