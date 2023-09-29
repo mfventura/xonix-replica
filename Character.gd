@@ -14,7 +14,7 @@ func resize():
 	position = currentPositionInBoard * Globals.size
 
 func get_input():
-	"""
+
 	var remX =  int(position.x) % Globals.size
 	var remY =  int(position.y) % Globals.size
 	if Input.is_action_pressed('right_p'+str(player)):
@@ -34,9 +34,9 @@ func get_input():
 		velocity.x = 0
 		position.x -= remX
 	velocity = (velocity.normalized() * speed)
-	"""
-	var input_direction = Input.get_vector('left_p'+str(player), 'right_p'+str(player), 'up_p'+str(player), 'down_p'+str(player))
-	velocity = input_direction * speed
+
+	#var input_direction = Input.get_vector('left_p'+str(player), 'right_p'+str(player), 'up_p'+str(player), 'down_p'+str(player))
+	#velocity = input_direction * speed
 
 func _physics_process(delta):
 	get_input()

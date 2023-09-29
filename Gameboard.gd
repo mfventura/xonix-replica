@@ -25,10 +25,9 @@ func _ready():
 	_buildBoard()
 
 func restart():
-	#char.stop_movement()
-	#char.position = Vector2.ZERO
-	#_buildBoard()
-	pass
+	char.stop_movement()
+	char.position = Vector2.ZERO
+	_buildBoard()
 	
 func _process(delta):
 	queue_redraw()
@@ -86,10 +85,10 @@ func floodfill():
 		char.stop_movement()
 		for cell in fillCells:
 			Globals.boardData[cell.x][cell.y].val = 1
-		var lastCell = fillCells[fillCells.size()-1]
-		fillCells.clear()
 		
-		flood_fill(lastCell)
+		while fillCells:
+			var floodCell = fillCells.pop_front()
+			flood_fill(floodCell)
 
 func flood_fill(lastCell):
 	var sides = []
@@ -101,9 +100,7 @@ func flood_fill(lastCell):
 		sides.append(Globals.boardData[lastCell.x-1][lastCell.y])
 	if((lastCell.x+1 > 0 && lastCell.x+1 < Globals.width) && Globals.boardData[lastCell.x+1][lastCell.y].val == 0):
 		sides.append(Globals.boardData[lastCell.x+1][lastCell.y])
-	
-	
-	
+		
 	if(sides.size() == 2):
 		var side1 = []
 		var side2 = []
